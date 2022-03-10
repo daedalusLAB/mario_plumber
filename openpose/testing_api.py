@@ -7,6 +7,7 @@ import cv2
 import os
 from sys import platform
 import argparse
+import common
 
 
 # Import openpose libraries
@@ -24,46 +25,13 @@ args = parser.parse_known_args()
 params = dict()
 params["model_folder"] = "/home/raul/miscosas/openpose/models/"
 
+
 # Starting OpenPose
 openposeWrapper = op.WrapperPython()
 openposeWrapper.configure(params)
 openposeWrapper.start()
 
-      
-bodyPoints = { 'Nose': 0, 'Neck': 1, 'RShoulder': 2, 'RElbow': 3, 'RWrist': 4, 'LShoulder': 5, 
-          'LElbow': 6, 'LWrist': 7, 'MidHip': 8, 'RHip': 9, 'RKnee': 10, 'RAnkle': 11, 
-          'LHip': 12, 'LKnee': 13, 'LAnkle': 14, 'REye': 15, 'LEye': 16, 'REar': 17, 'LEar': 18, 
-          'LBigToe': 19, 'LSmallToe': 20, 'LHeel': 21, 'RBigToe': 22, 'RSmallToe': 23, 'RHeel': 24, 
-          'Background': 25}
-
-
-poseModel = op.PoseModel.BODY_25
-
-datum = op.Datum()
-imageToProcess = cv2.imread(args[0].image_path)
-datum.cvInputData = imageToProcess
-openposeWrapper.emplaceAndPop(op.VectorDatum([datum]))
-
-
-if datum.poseKeypoints.size == 0:
-    print("No pose found")
-else :
-    # Result for BODY_25 (25 body parts consisting of COCO + foot)
-    if datum.poseKeypoints.shape[0] == 1:
-        print("One pose found")
-        if (datum.poseKeypoints[0][bodyPoints['Nose']] != [0,0,0]).all():
-            print("Nose found")
-        if (datum.poseKeypoints[0][bodyPoints['RWrist']] != [0,0,0]).all():
-            print("RWrist found")
-        if (datum.poseKeypoints[0][bodyPoints['LWrist']] != [0,0,0]).all():
-            print("LWrist found")
-        if (datum.poseKeypoints[0][bodyPoints['RHeel']] != [0,0,0]).all():
-            print("RHeel found")
-
-
-
-
-
-#print("Body keypoints: \n" + str(datum.poseKeypoints))
-
-
+if common.person_with_hands_in_image(args[0].image_path, openposeWrapper):
+    print("Person with hands in image")
+else:
+    print("No person with hands in image")
