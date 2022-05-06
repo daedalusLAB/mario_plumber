@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # copyfromcsvfile.py --input_csv csv_file.csv --videos_folder /home/user/videos --destination_folder /home/user/selected_videos
-# Given a csv file with a filename per row, this script copy all the videos in videos_folder to destination_folder
+# Given a csv file with a filename per row, this script copy all the videos in videos_folder or in a subfolder to destination_folder
 # if the filename of the video is in the csv file.
 
 # Example:
@@ -39,14 +39,25 @@ with open(args.input_csv, 'r') as csv_file:
       # Remove " and ' from the line
       line = line.replace('"', '')
       line = line.replace("'", '')
-      # if line + .mp4 exists in videos_folder, copy it to destination_folder
+      found = False
+      # if line + .mp4 exists in videos_folder or in a subfolder, copy it to destination_folder
       video_file_name = line.strip() + ".mp4"
-      video_file_path = os.path.join(args.videos_folder, video_file_name)
-      if os.path.exists(video_file_path):
-        print("Found matching video file: " + video_file_name)
-        shutil.copy(video_file_path, args.destination_folder)
+      # find video in videos_folder or in a subfolder
+      if os.path.exists(os.path.join(args.videos_folder, video_file_name)):
+        # copy video to destination_folder
+        shutil.copy(os.path.join(args.videos_folder, video_file_name), args.destination_folder)
+        print("Copying " + video_file_name + " to " + args.destination_folder)
       else:
-        print("No matching video file: " + video_file_name)
-
-    
+        # find video in a subfolder
+        for root, dirs, files in os.walk(args.videos_folder):
+          if video_file_name in files:
+            # copy video to destination_folder
+            shutil.copy(os.path.join(root, video_file_name), args.destination_folder)
+            print("Copying " + video_file_name + " to " + args.destination_folder)
+            found = True
+            break
+        if not found:
+          print("************Video " + video_file_name + " not found.**************")
+        
+      
 
