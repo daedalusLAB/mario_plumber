@@ -11,6 +11,12 @@ import os
 import sys
 import argparse
 import pandas as pd
+import gzip
+import warnings
+
+warnings.filterwarnings('ignore')
+
+
 
 parser = argparse.ArgumentParser(description='Crop videos seconds containing the text in gentle info, and save them to the destination folder.')
 parser.add_argument('--videos_folder', type=str, help='Folder with .mp4 videos and gentle information. It look for into subfolder also.', required=True)
@@ -65,7 +71,14 @@ if not os.path.exists(args.destination_folder):
 def get_cut_times(video, search_text):
     cutting_times = {}
     try:
-        gentle = pd.read_csv(video, sep = "\t", header = 6, skiprows = 6, decimal = ".", encoding = "UTF-8")
+        # read file and delete lines starting with "<"
+        f = gzip.open(video,"rt")
+        lines = f.readlines()
+        lines = [line for line in lines if not line.startswith('<')]
+        f.close()
+        # create a list from lines using "\t" as separator
+        lines = [line.split("\t") for line in lines]
+        gentle = pd.DataFrame(lines)
         # Selection on important columns
         selection1 = gentle.iloc[:, [0, 51, 52 ]]
         # rename columns to "string", "second" and "milisecond"
@@ -79,7 +92,9 @@ def get_cut_times(video, search_text):
                 cond = cond & selection1["string"].shift(-1*i).eq(words[i])
         cutting_times = selection1[cond]
         # Create new column in cutting_times called "cutTime" with the value of second + milisecond * 0.001.
-        cutting_times["cutTime"] = cutting_times["second"] + (cutting_times["milisecond"] * 0.001)
+        cutting_times["second"]     = cutting_times["second"].apply(lambda x: float(x))
+        cutting_times["milisecond"] = cutting_times["milisecond"].apply(lambda x: float(x) * 0.0001)
+        cutting_times["cutTime"] = cutting_times["second"] + cutting_times["milisecond"]
     except:
         print("Error: " + video)
         cutting_times["cutTime"] = []
