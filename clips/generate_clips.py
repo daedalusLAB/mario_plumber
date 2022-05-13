@@ -81,8 +81,10 @@ def get_cut_times(video, search_text):
         gentle = pd.DataFrame(lines)
         # Selection on important columns
         selection1 = gentle.iloc[:, [0, 51, 52 ]]
-        # rename columns to "string", "second" and "milisecond"
+        # rename columns to "string", "second" and "milisecond" and everything to lowercase
         selection1.columns = ["string", "second", "milisecond"]
+        selection1["string"] = selection1["string"].apply(lambda x: x.lower())
+        search_text = search_text.lower()
         words = search_text.split(" ")
         # get rows with conditions. consecutive words must be in consecutive rows
         for i in range(len(words)):
