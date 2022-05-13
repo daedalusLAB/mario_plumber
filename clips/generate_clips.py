@@ -13,9 +13,9 @@ import argparse
 import pandas as pd
 
 parser = argparse.ArgumentParser(description='Crop videos seconds containing the text in gentle info, and save them to the destination folder.')
-parser.add_argument('--videos_folder', type=str, help='Folder with .mp4 videos.', required=True)
+parser.add_argument('--videos_folder', type=str, help='Folder with .mp4 videos and gentle information. It look for into subfolder also.', required=True)
 parser.add_argument('--text', type=str, help='Text to search for in the video.', required=True)
-parser.add_argument('--seconds_before', type=int, help='Number of seconds to crop before first expression.', default=3)
+parser.add_argument('--seconds_before', type=int, help='Number of seconds to crop before first word expression.', default=3)
 parser.add_argument('--seconds_after', type=int, help='Number of seconds to crop after first word expression.', default=5)
 parser.add_argument('--destination_folder', type=str, help='Destination folder.', default="videos_output")
 
