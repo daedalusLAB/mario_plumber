@@ -9,13 +9,12 @@ bodyPoints = { 'Nose': 0, 'Neck': 1, 'RShoulder': 2, 'RElbow': 3, 'RWrist': 4, '
           'LBigToe': 19, 'LSmallToe': 20, 'LHeel': 21, 'RBigToe': 22, 'RSmallToe': 23, 'RHeel': 24, 
           'Background': 25}
 
-def person_with_hands_in_image(image_path, openposeWrapper):
+def person_with_hands_in_image(image, openposeWrapper):
   """
   Returns True if there is a person with visible head and hands in the image .
   """
   datum = op.Datum()
-  imageToProcess = cv2.imread(image_path)
-  datum.cvInputData = imageToProcess
+  datum.cvInputData = image
   openposeWrapper.emplaceAndPop(op.VectorDatum([datum]))
 
   if datum.poseKeypoints.size == 0:
@@ -32,3 +31,31 @@ def person_with_hands_in_image(image_path, openposeWrapper):
         )
   return False
       
+
+# extract 15 frames from a given video separates in time intervals of video lenght / 16 
+def extract_frames(video_path, output_path):
+  """
+  Extract 15 frames from a given video separates in time intervals of video lenght / 16 
+  """
+  cap = cv2.VideoCapture(video_path)
+  length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+  interval = int(length / 16)
+  frames = []
+  for i in range(15):
+    cap.set(cv2.CAP_PROP_POS_FRAMES, (i+1) * interval)
+    ret, frame = cap.read()
+    cv2.imwrite(output_path + "/frame%d.jpg" % i, frame)
+    frames.append(output_path + "/frame%d.jpg" % i)
+  return frames
+
+def determine_if_person_in_frames(frames, openposeWrapper):
+  """
+  Returns True if there is a person with visible head and hands in any of the frames.
+  """
+  positive_count = 0
+  for frame in frames:
+    if person_with_hands_in_image(frame, openposeWrapper):
+      positive_count += 1
+  if positive_count > 5:
+    return True
+  return False
