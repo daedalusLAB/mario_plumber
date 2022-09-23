@@ -1,6 +1,7 @@
 import cv2
 import sys
-sys.path.append("/home/raul/miscosas/openpose/build/python")
+import argparse
+sys.path.append("/usr/local/python")
 from openpose import pyopenpose as op
 
 bodyPoints = { 'Nose': 0, 'Neck': 1, 'RShoulder': 2, 'RElbow': 3, 'RWrist': 4, 'LShoulder': 5, 
@@ -33,7 +34,7 @@ def person_with_hands_in_image(image, openposeWrapper):
       
 
 # extract 15 frames from a given video separates in time intervals of video lenght / 16 
-def extract_frames(video_path, output_path):
+def extract_frames(video_path):
   """
   Extract 15 frames from a given video separates in time intervals of video lenght / 16 
   """
@@ -44,8 +45,10 @@ def extract_frames(video_path, output_path):
   for i in range(15):
     cap.set(cv2.CAP_PROP_POS_FRAMES, (i+1) * interval)
     ret, frame = cap.read()
-    cv2.imwrite(output_path + "/frame%d.jpg" % i, frame)
-    frames.append(output_path + "/frame%d.jpg" % i)
+    if ret:
+      frames.append(frame)
+  cap.release()
+  
   return frames
 
 def determine_if_person_in_frames(frames, openposeWrapper):
@@ -59,3 +62,21 @@ def determine_if_person_in_frames(frames, openposeWrapper):
   if positive_count > 5:
     return True
   return False
+
+
+# if not loaded as library execute main
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='Determine if there is a person with visible head and hands in a video.')
+    parser.add_argument('--video', type=str, required=True, help='Path to the video file.')
+
+    args = parser.parse_args()
+
+    openposeWrapper = op.WrapperPython()
+
+    frames = []
+    frames = extract_frames(args.video)
+    if determine_if_person_in_frames(frames, openposeWrapper):
+      print("Person with hands in video")
+    else:
+      print("No person with hands in video")
