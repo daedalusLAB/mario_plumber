@@ -2,6 +2,9 @@ import cv2
 import sys
 import argparse
 import pyopenpose as op
+import os
+import shutil
+
 
 bodyPoints = { 'Nose': 0, 'Neck': 1, 'RShoulder': 2, 'RElbow': 3, 'RWrist': 4, 'LShoulder': 5, 
           'LElbow': 6, 'LWrist': 7, 'MidHip': 8, 'RHip': 9, 'RKnee': 10, 'RAnkle': 11, 
@@ -71,7 +74,11 @@ def determine_if_person_in_frames(frames, openposeWrapper):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Determine if there is a person with visible head and hands in a video.')
-    parser.add_argument('--video', type=str, required=True, help='Path to the video file.')
+    #parser.add_argument('--video', type=str, required=False, help='Path to the video file.')
+    parser.add_argument('--videos_folder', type=str, required=False, help='Path to the folder with input videos.')
+    parser.add_argument('--discarded_videos', type=str, required=False, help='Path to the file with discarded videos.')
+    parser.add_argument('--matched_videos', type=str, required=False, help='Path to the folder with matched videos.')
+
 
     args = parser.parse_args()
 
@@ -81,9 +88,18 @@ if __name__ == "__main__":
     openposeWrapper.configure(params)
     openposeWrapper.start()
 
-    frames = []
-    frames = extract_frames(args.video)
-    if determine_if_person_in_frames(frames, openposeWrapper):
-      print("Person with hands in video")
-    else:
-      print("No person with hands in video")
+
+    # loop over the .mp4 files recursively in the videos_folder
+    for root, dirs, files in os.walk(args.videos_folder):
+      for file in files:
+        if file.endswith(".mp4"):
+          video_path = os.path.join(root, file)
+          frames = []
+          frames = extract_frames(video_path)
+          if determine_if_person_in_frames(frames, openposeWrapper):
+            # copy the video to the matched_videos folder
+            shutil.copy(video_path, args.matched_videos)
+          else:
+            # copy vide to discarded_videos folder
+            shutil.copy(video_path, args.discarded_videos)
+
