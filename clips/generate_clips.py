@@ -80,7 +80,7 @@ def get_cut_times(video, search_text):
         lines = [line.split("\t") for line in lines]
         gentle = pd.DataFrame(lines)
         # Selection on important columns
-        selection1 = gentle.iloc[:, [0, 51, 52 ]]
+        selection1 = gentle.iloc[:, [0, 11, 12 ]]
         # rename columns to "string", "second" and "milisecond" and everything to lowercase
         selection1.columns = ["string", "second", "milisecond"]
         selection1["string"] = selection1["string"].apply(lambda x: x.lower())
@@ -94,12 +94,26 @@ def get_cut_times(video, search_text):
                 cond = cond & selection1["string"].shift(-1*i).eq(words[i])
         cutting_times = selection1[cond]
         # Create new column in cutting_times called "cutTime" with the value of second + milisecond * 0.001.
-        cutting_times["second"]     = cutting_times["second"].apply(lambda x: float(x))
-        cutting_times["milisecond"] = cutting_times["milisecond"].apply(lambda x: float(x) * 0.0001)
+        try:
+            cutting_times["second"]     = cutting_times["second"].astype(float)
+        except:
+            print("Error: second column is not a float")
+            cutting_times = {}
+            return list(cutting_times)
+        try:
+            cutting_times["milisecond"] = cutting_times["milisecond"].astype(float) * 0.001
+        except: 
+            print("Error: milisecond column is not a float")
+            cutting_times = {}
+            return list(cutting_times)
+
         cutting_times["cutTime"] = cutting_times["second"] + cutting_times["milisecond"]
     except:
         print("Error: " + video)
-        cutting_times["cutTime"] = []
+        cutting_times = {}
+        return list(cutting_times)
+    print("Video: " + video + " - " + str(len(cutting_times)) + " cuts found." )
+    print(list(cutting_times["cutTime"]))
     return list(cutting_times["cutTime"])
 
     
@@ -146,7 +160,7 @@ def crop_videos(cut_times, destination_folder, seconds_before, seconds_after, te
                 # create the command to crop the video and generate a new .mp4 video 
                 command = "ffmpeg -ss " + str(start_time) + " -t " + str(seconds_before + seconds_after)  + " -i " + video_name  + " -c copy " + os.path.join(destination_folder, dest_video_name.replace(".mp4", "_" + str(i) + "_" + text + ".mp4"))
                 # execute the command without console output
-                # print(command)
+                print(command)
                 os.system(command + " > /dev/null 2>&1")
             else:
                 print("*** ERROR: The video file ' " + video_name + "' does not exist. ***")
