@@ -30,8 +30,8 @@ def person_with_hands_in_image(image, openposeWrapper):
           # print(datum.poseKeypoints[i][bodyPoints['RWrist']] )
           # print(datum.poseKeypoints[i][bodyPoints['LWrist']] )
           return ( (datum.poseKeypoints[i][bodyPoints['Nose']] != [0,0,0]).all() and \
-            (datum.poseKeypoints[i][bodyPoints['RWrist']] != [0,0,0]).all() and \
-            (datum.poseKeypoints[i][bodyPoints['LWrist']] != [0,0,0]).all()
+            (datum.poseKeypoints[i][bodyPoints['RShoulder']] != [0,0,0]).all() and \
+            (datum.poseKeypoints[i][bodyPoints['LShoulder']] != [0,0,0]).all()
           )
     return False
   except Exception as e:
@@ -82,6 +82,21 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    # if videos_folder doesn't exist exit
+    if not os.path.exists(args.videos_folder):
+      print('Folder with videos doesn\'t exist.')
+      exit()
+    
+    # if discarded_videos folder doesn't exist create it
+    if not os.path.exists(args.discarded_videos):
+      os.makedirs(args.discarded_videos)
+
+    # if matched_videos folder doesn't exist create it
+    if not os.path.exists(args.matched_videos):
+      os.makedirs(args.matched_videos)
+
+
+
     params = dict()
     params["model_folder"] = "/openpose/models/"
     openposeWrapper = op.WrapperPython()
@@ -100,6 +115,6 @@ if __name__ == "__main__":
             # copy the video to the matched_videos folder
             shutil.copy(video_path, args.matched_videos)
           else:
-            # copy vide to discarded_videos folder
+            # copy video file to discarded_videos folder
             shutil.copy(video_path, args.discarded_videos)
 

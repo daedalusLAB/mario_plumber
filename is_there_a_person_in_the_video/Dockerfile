@@ -31,3 +31,5 @@ ENV LD_LIBRARY_PATH=/openpose/build/python/openpose
 RUN cd /openpose/models && bash getModels.sh 
 
 WORKDIR /openpose
+
+COPY is_there_a_person_in_the_video.py /openpose
