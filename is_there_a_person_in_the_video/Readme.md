@@ -1,7 +1,7 @@
 # IS THERE A PERSON IN THE VIDEO?
 
 - Author: [Raúl Sánchez](raul@um.es)
-- Tags: video, person, detection, object, detection, opencv, python
+- Tags: video, person, detection, object, detection, openpose, python
 
 # Description
 
