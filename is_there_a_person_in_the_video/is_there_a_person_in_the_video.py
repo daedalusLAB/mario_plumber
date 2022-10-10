@@ -118,3 +118,6 @@ if __name__ == "__main__":
             # copy video file to discarded_videos folder
             shutil.copy(video_path, args.discarded_videos)
 
+    # chmod 777 discarded_videos and matched_videos folders and files
+    os.system('chmod -R 777 ' + args.discarded_videos)
+    os.system('chmod -R 777 ' + args.matched_videos)

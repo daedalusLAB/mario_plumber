@@ -16,7 +16,7 @@ This way you can also use openpose with python bindings without installing it in
 ```bash
 docker run -it --gpus all  \\
     -v $PWD/videos:/videos -v $PWD/YES:/YES -v $PWD/NO:/NO \\ 
-    is_there_a_person_in_the_video:0.1 \\ 
+    raulkite/is_there_a_person_in_the_video:0.1 \\ 
     python3 /openpose/is_there_a_person_in_the_video.py \\ 
     --videos /videos --discarded_videos /NO --matched_videos /YES
 ```
