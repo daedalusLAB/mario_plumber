@@ -14,7 +14,7 @@ bodyPoints = { 'Nose': 0, 'Neck': 1, 'RShoulder': 2, 'RElbow': 3, 'RWrist': 4, '
 
 def person_with_hands_in_image(image, openposeWrapper):
   """
-  Returns True if there is a person with visible head and hands in the image .
+  Returns True if there is a person with visible head and shoulders in the image .
   """
   datum = op.Datum()
   datum.cvInputData = image
