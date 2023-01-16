@@ -11,16 +11,17 @@ import os
 def load_spacy_model(language, spellcheck):
   if language == 'es':
     # load spanish transformer spacy model
+    print("Loading spanish spacy model\n")
     nlp = spacy.load('es_dep_news_trf')
-    if (spellcheck):
-      print('Loading contextual spell check model for spanish...')
-      nlp.add_pipe(
-        "contextual spellchecker",
-        config={
-          "model_name": "dccuchile/bert-base-spanish-wwm-cased",
-          "max_edit_dist": 2,
-        },
-      )
+    # if (spellcheck):
+    #   print('Loading contextual spell check model for spanish...')
+    #   nlp.add_pipe(
+    #     "contextual spellchecker",
+    #     config={
+    #       "model_name": "dccuchile/bert-base-spanish-wwm-cased",
+    #       "max_edit_dist": 2,
+    #     },
+    #   )
   else:
     # load english transformer spacy model
     nlp = spacy.load('en_core_web_trf')
@@ -122,7 +123,7 @@ def vrt_header(file, language):
 def vrt_token(token):
   token_line = token.text + " \t " + token.pos_  +  " \t " + token.lemma_  +  " \t " + token.lemma_ + "_" + token.pos_  + " \t " + token.lower_ + " \t " + \
           token.prefix_ + " \t " + token.suffix_  +  " \t " + str(token.is_digit) + " \t " + str(token.like_num) + " \t " + \
-          str(token.dep_) + " \t " + str(token.shape_) + " \t " + str(token.tag_) + " \t "  +  str(token.sentiment) + " \t " + \
+          token.dep_ + " \t " + str(token.shape_) + " \t " + str(token.tag_) + " \t "  +  str(token.sentiment) + " \t " + \
           str(token.is_alpha) + " \t " +  str(token.is_stop) + " \t " +  token.head.text + " \t " + \
           token.head.pos_ + " \t " +  str([child for child in token.children]) + " \t " + \
           str([child for child in token.lefts]) + " \t " + str([child for child in token.rights]) + " \t " + \
@@ -132,6 +133,8 @@ def vrt_token(token):
 
 def create_vrt_file(file, language, spellcheck, transcription, nlp):
   print("Correcting spelling and Generating spacy doc...")
+  # trasncription to lowercase
+  transcription = transcription.lower()
   doc = nlp(transcription)
 
   # file = 2021-01-01_1700_US_KMEX_Noticiero_Univisión_Edición_Digital_tagged.txt 
@@ -150,7 +153,8 @@ def create_vrt_file(file, language, spellcheck, transcription, nlp):
   for sent in doc.sents:
       sentence_id += 1
       vrt_file.write('<s id="' + str(sentence_id) + '" ' + 'file="' + filename + '" ' +  'reltime="0" ' + " >\n")
-      for token in sent:
+      frase = nlp(sent.text)
+      for token in frase:
         vrt_file.write(vrt_token(token))
       vrt_file.write("</s>\n")
   vrt_file.write('</turn>\n')
