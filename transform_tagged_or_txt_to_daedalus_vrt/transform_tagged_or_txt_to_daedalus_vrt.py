@@ -110,13 +110,15 @@ def parse_file(file):
   day = date_time.split('-')[2].split('_')[0]
   # time: 0000
   time = date_time.split('-')[2].split('_')[1]
-  return filename, filename_with_ext, date_time, channel, title, year, month, day, time
+  # country: US
+  country = filename_with_ext.split('_')[2]
+  return filename, filename_with_ext, date_time, channel, country, title, year, month, day, time
     
 def vrt_header(file, language):
-  filename, filename_with_ext, date_time, channel, title, year, month, day, time = parse_file(file)
+  filename, filename_with_ext, date_time, channel, country, title, year, month, day, time = parse_file(file)
   text =  '<text id="' + filename  +  '" '  + 'file="' + filename_with_ext + '" '  + ' language="' + language + '" ' + \
-          'collection="Daedalus Test" ' + 'date="' + date_time + '" ' + 'channel="' + channel + '" ' + 'title="' + \
-          title + '" ' + 'year="' + year + '" ' + 'month="' + month + '" ' + 'day="' + day + '" ' + 'time="' + time + '" ' + '>\n'
+          'collection="Daedalus Test" ' + 'date="' + date_time + '" ' + 'channel="' + channel + '" ' + 'country="' + country + '" ' + \
+          'title="' + title + '" ' + 'year="' + year + '" ' + 'month="' + month + '" ' + 'day="' + day + '" ' + 'time="' + time + '" ' + '>\n'
   return filename, text
 
 
